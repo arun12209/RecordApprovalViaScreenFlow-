@@ -1,0 +1,26 @@
+<template>
+    <!--lightning record view form to display the leave application fields-->
+    <lightning-record-view-form object-api-name={objectApiName}
+                                record-id={recordId}>
+        <div class="slds-box">
+            
+            <lightning-output-field field-name="Previous_Balance_Leave__c"> </lightning-output-field>
+            
+            <lightning-output-field field-name="Balance_Leave__c"> </lightning-output-field>
+            
+            <lightning-output-field field-name="Start_Date__c"> </lightning-output-field>
+           
+            <lightning-output-field field-name="End_Date__c"></lightning-output-field> 
+            
+            <lightning-output-field field-name="Total_duration__c"> </lightning-output-field>
+            
+            <lightning-output-field field-name="Employee_Name__c"> </lightning-output-field>
+            
+            <lightning-output-field field-name="Type__c"> </lightning-output-field>
+        </div>
+    </lightning-record-view-form><br/>
+    <!--Approve button-->
+    <lightning-button variant="brand" label="Approve" title="Approve leave request" onclick={handleApprove} class="slds-m-left_x-small"></lightning-button>
+    <!--Reject button-->
+    <lightning-button variant="destructive" label="Reject" title="Reject leave request" onclick={handleReject} class="slds-m-left_x-small"></lightning-button>
+</template>
