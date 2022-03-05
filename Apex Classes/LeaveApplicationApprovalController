@@ -1,0 +1,50 @@
+public with sharing class LeaveApplicationApprovalController {
+   
+    /**
+     * @description approveRequest
+     */
+    @AuraEnabled
+    public static String approveRejectRequest(String recordIdStr, Boolean isApprove){
+        try{
+
+            String resultString = isApprove ? 'Approved': 'Rejected';
+           
+            Leave_Application__c la = [Select Employee__r.OwnerId from Leave_Application__c where id=:recordIdStr];
+            User u = [SELECT ManagerID FROM User where id=:la.Employee__r.OwnerId];
+            //check if current user is manager of requester.
+            Boolean isCurrentUserManagerOfRecordOwner  = (u.ManagerID == UserInfo.getUserId() )? true:false;
+            
+            if(isCurrentUserManagerOfRecordOwner){
+           
+                ProcessInstance pi = [SELECT Id,Status,TargetObjectId FROM ProcessInstance where Status='Pending' and TargetObjectId = :recordIdStr];
+
+                ProcessInstanceWorkitem piw =  [SELECT Id,ProcessInstanceId FROM ProcessInstanceWorkitem WHERE ProcessInstanceId =:pi.Id];
+
+                Approval.ProcessWorkitemRequest req1 = new Approval.ProcessWorkitemRequest();
+
+                req1.setComments('Your request has been approved!');
+
+                if(isApprove){
+                    req1.setAction('Approve'); //to approve use 'Approve'
+                }else{
+                    req1.setAction('Reject'); //to reject use 'Reject'
+                }
+                
+                req1.setNextApproverIds(new Id[] {UserInfo.getUserId()});
+
+                // Use the ID from the newly created item to specify the item to be worked
+                req1.setWorkitemId(piw.Id);
+
+                if(!Test.isRunningTest()){
+                    Approval.ProcessResult result =  Approval.process(req1);
+                }
+
+                return resultString;
+            }
+            else{
+                return System.Label.Current_user_is_not_manager_of_record_owner;
+            }
+        }
+        catch(Exception e){ throw new AuraHandledException(e.getMessage()); }
+    }
+}
